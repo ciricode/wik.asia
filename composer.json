@@ -1,0 +1,20 @@
+{
+    "require": {
+        "gingteam/redbean": "^0.0.3",
+        "slim/slim": "^4.9",
+        "nyholm/psr7": "^1.4",
+        "nyholm/psr7-server": "^1.0",
+        "cakephp/validation": "^4.3"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.1",
+        "pestphp/pest": "^1.20"
+    },
+    "autoload": {
+        "files": ["internal/functions.php"]
+    },
+    "scripts": {
+        "test": "pest",
+        "phpstan": "phpstan analyse --level 6 internal"
+    }
+}
