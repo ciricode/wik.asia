@@ -27,7 +27,10 @@ $app->add(function (Request $request, RequestHandlerInterface $requestHandler) {
 
     $response = $requestHandler->handle($request);
 
-    return $response;
+    return $response
+        ->withStatus(200)
+        ->withHeader('X-Powered-By', 'Wik.asia')
+        ->withHeader('Content-Type', 'application/json');
 });
 
 $app->addRoutingMiddleware();
@@ -54,8 +57,9 @@ $errorMiddleware = $app->addErrorMiddleware(false, false, false);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
 $app->get('/', function (Request $request, Response $response) {
-    $response->getBody()->write('Hello world');
-
+    $response->getBody()->write(
+        json_encode(['messages' => 'Hello World'], JSON_UNESCAPED_UNICODE)
+    );
     return $response;
 });
 
