@@ -2,3 +2,5 @@ vendor
 composer.lock
 data.db
 .phpunit.result.cache
+.env
+public/adminer.php

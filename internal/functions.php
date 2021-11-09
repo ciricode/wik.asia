@@ -6,7 +6,7 @@ use RedBeanPHP\OODBBean;
 use RedBeanPHP\RedException;
 
 /**
- * @return OODBBean<string,mixed>
+ * @return OODBBean<mixed>
  *
  * @throws RedException
  * @throws InvalidArgumentException

@@ -4,21 +4,36 @@ use GingTeam\RedBean\Facade as R;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Slim\Factory\AppFactory;
 
 require __DIR__.'/../vendor/autoload.php';
 
-R::setup('sqlite:'.__DIR__.'/../data.db');
-
-R::freeze(false); // true in 'prod'
-
 $app = AppFactory::create();
+
+$app->add(function (Request $request, RequestHandlerInterface $requestHandler) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../');
+    $dotenv->load();
+    $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS']);
+    $dotenv->required('PROD')->isBoolean();
+
+    R::setup(
+        sprintf('mysql:host=%s;dbname=%s', $_ENV['DB_HOST'], $_ENV['DB_NAME']),
+        $_ENV['DB_USER'],
+        $_ENV['DB_PASS']
+    );
+    R::freeze(getenv('PROD'));
+
+    $response = $requestHandler->handle($request);
+
+    return $response;
+});
 
 $app->addRoutingMiddleware();
 $app->addBodyParsingMiddleware();
 
-$customErrorHandler = function (
+$errorHandler = function (
     ServerRequestInterface $request,
     Throwable $exception,
     bool $displayErrorDetails,
@@ -36,7 +51,7 @@ $customErrorHandler = function (
 };
 
 $errorMiddleware = $app->addErrorMiddleware(false, false, false);
-$errorMiddleware->setDefaultErrorHandler($customErrorHandler);
+$errorMiddleware->setDefaultErrorHandler($errorHandler);
 
 $app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write('Hello world');
