@@ -60,6 +60,7 @@ $app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write(
         json_encode(['messages' => 'Hello World'], JSON_UNESCAPED_UNICODE)
     );
+
     return $response;
 });
 

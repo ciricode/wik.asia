@@ -1,6 +1,5 @@
 <?php
 
-use Cake\Validation\Validator;
 use GingTeam\RedBean\Facade as R;
 use RedBeanPHP\OODBBean;
 use RedBeanPHP\RedException;
@@ -45,19 +44,17 @@ function postToCallback(string $url, array $params): void
  */
 function validator(array &$data): bool
 {
-    $errors = (new Validator())
-        ->notEmptyString('app_key')
-        ->lengthBetween('signature', [32, 32])
-        ->decimal('amount')
-        ->decimal('receive_id')
-        ->validate($data)
-    ;
+    $v = new Valitron\Validator($data);
+    $v->rule('required', 'app_key');
+    $v->rule('length', 'signature', 32);
+    $v->rule('integer', 'amount');
+    $v->rule('integer', 'receive_id');
 
-    if ([] !== $errors) {
-        return false;
+    if ($v->validate()) {
+        unset($data['app_key'], $data['signature']);
+
+        return true;
     }
 
-    unset($data['app_key'], $data['signature']);
-
-    return true;
+    return false;
 }
