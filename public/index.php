@@ -67,7 +67,7 @@ $app->get('/', function (Request $request, Response $response) {
 $app->post('/api', function (Request $request, Response $response) {
     $data = $request->getParsedBody();
 
-    if (validator($data)) {
+    if (validate($data)) {
         $user = getUser($data['signature']);
         postToCallback($user->callback_url, $data);
     }

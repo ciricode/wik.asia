@@ -42,13 +42,13 @@ function postToCallback(string $url, array $params): void
  *
  * @throws InvalidArgumentException
  */
-function validator(array &$data): bool
+function validate(array &$data): bool
 {
-    $v = new Valitron\Validator($data);
-    $v->rule('required', 'app_key');
-    $v->rule('length', 'signature', 32);
-    $v->rule('integer', 'amount');
-    $v->rule('integer', 'receive_id');
+    $v = (new Valitron\Validator($data))
+        ->rule('required', 'app_key')
+        ->rule('length', 'signature', 32)
+        ->rule('integer', 'amount')
+        ->rule('integer', 'receive_id');
 
     if ($v->validate()) {
         unset($data['app_key'], $data['signature']);

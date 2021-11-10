@@ -33,5 +33,5 @@ test('validator test', function () {
         'signature' => hash_hmac('md5', 'test', 'test'),
     ];
 
-    $this->assertTrue(validator($data));
+    $this->assertTrue(validate($data));
 });
