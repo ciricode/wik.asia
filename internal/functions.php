@@ -1,8 +1,30 @@
 <?php
 
+use Dotenv\Exception\InvalidEncodingException;
+use Dotenv\Exception\InvalidPathException;
 use GingTeam\RedBean\Facade as R;
 use RedBeanPHP\OODBBean;
 use RedBeanPHP\RedException;
+
+/**
+ * @throws InvalidPathException
+ * @throws InvalidEncodingException
+ * @throws RedException
+ */
+function init(): void
+{
+    $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+    $dotenv->load();
+    $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS']);
+    $dotenv->required('PROD')->isBoolean();
+
+    R::setup(
+        sprintf('mysql:host=%s;dbname=%s', $_ENV['DB_HOST'], $_ENV['DB_NAME']),
+        $_ENV['DB_USER'],
+        $_ENV['DB_PASS']
+    );
+    R::freeze(getenv('PROD'));
+}
 
 /**
  * @return OODBBean<mixed>
@@ -12,7 +34,7 @@ use RedBeanPHP\RedException;
  */
 function getUser(string $signature): OODBBean
 {
-    $user = R::findOne('users', 'signature =?', [$signature]);
+    $user = R::findOne('users', 'signature = ?', [$signature]);
 
     if (null === $user) {
         throw new InvalidArgumentException('Invalid signature');
