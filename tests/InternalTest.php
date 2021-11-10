@@ -19,13 +19,13 @@ it('throws exception', function () {
 })->throws(InvalidArgumentException::class, 'Invalid signature');
 
 test('user test', function () {
-    /** @var TestCase $this */
     $user = getUser('12345');
+
+    /** @var TestCase $this */
     $this->assertSame('tnit', $user->name);
 });
 
 test('validator test', function () {
-    /** @var TestCase $this */
     $data = [
         'app_key' => '####',
         'amount' => 1000,
@@ -33,5 +33,17 @@ test('validator test', function () {
         'signature' => hash_hmac('md5', 'test', 'test'),
     ];
 
+    /** @var TestCase $this */
     $this->assertTrue(validate($data));
+});
+
+test('retry test', function () {
+    $_ENV['MAX_RETRIES'] = 2;
+
+    $retries1 = postToCallback('https://httpbin.org/status/503', []);
+    $retries2 = postToCallback('https://httpbin.org/post', []);
+
+    /* @var TestCase $this */
+    $this->assertEquals(2, $retries1);
+    $this->assertEquals(0, $retries2);
 });

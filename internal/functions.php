@@ -17,6 +17,7 @@ function init(): void
     $dotenv->load();
     $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS']);
     $dotenv->required('PROD')->isBoolean();
+    $dotenv->required('MAX_RETRIES')->isInteger();
 
     R::setup(
         sprintf('mysql:host=%s;dbname=%s', $_ENV['DB_HOST'], $_ENV['DB_NAME']),
@@ -44,19 +45,17 @@ function getUser(string $signature): OODBBean
 }
 
 /**
- * @param array<string|int> $params
+ * @param array<string|int> $data
+ *
+ * @return int Returns the number of retries
  */
-function postToCallback(string $url, array $params): void
+function postToCallback(string $url, array $data): int
 {
-    $options = [
-        'http' => [
-            'header' => 'Content-type: application/x-www-form-urlencoded',
-            'method' => 'POST',
-            'content' => http_build_query($params),
-        ],
-    ];
+    $client = new Curl\Curl();
+    $client->setRetry($_ENV['MAX_RETRIES']);
+    $client->post($url, $data);
 
-    @file_get_contents($url, false, stream_context_create($options));
+    return $client->retries;
 }
 
 /**
